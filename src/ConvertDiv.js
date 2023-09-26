@@ -22,43 +22,47 @@ function sendAmount(){
     })})*/
 }
 
-function Check(){
-    let checked = false;
-    try {
-        checked = document.getElementById("toggle").checked;
-    } catch (e) {
-
+function removeAll(...selects){
+    for(let i = 0; i < selects.length; i++){
+        try {
+            while (selects[i].options.length > 0) {
+                selects[i].remove(0);
+            }
+        } catch (e) {
+            
+        }
     }
-    console.log(checked)
-    return checked;
-
 }
-(function loadSymbols(){
 
 
-    if(Check()){
-    fetch("http://api.exchangeratesapi.io/v1/symbols?access_key=eddebd0aea69f5339121630cafa978ac", {method: 'GET'}).then(r =>
-       r.json().then(r => {
-           let values = Object.keys(r['symbols']);
-           let fromSelect = document.getElementById("from");
-           let toSelect = document.getElementById("to");
-           let dfFrom = document.createDocumentFragment();
-           for(let i = 0; i < values.length; i++){
-               let option = document.createElement('option')
-               option.value = values[i];
-               option.appendChild(document.createTextNode(values[i]));
-               dfFrom.appendChild(option);
-           }
-           fromSelect.appendChild(dfFrom);
-           let dfTo = document.createDocumentFragment();
-           for(let i = 0; i < values.length; i++){
-               let option = document.createElement('option')
-               option.value = values[i];
-               option.appendChild(document.createTextNode(values[i]));
-               dfTo.appendChild(option);
-           }
-           toSelect.appendChild(dfTo);
-       }));
+
+function chooseFetching(checked){
+    console.log(checked);
+    if(checked){
+        fetch("http://api.exchangeratesapi.io/v1/symbols?access_key=eddebd0aea69f5339121630cafa978ac", {method: 'GET'}).then(r =>
+            r.json().then(r => {
+                let values = Object.keys(r['symbols']);
+                let fromSelect = document.getElementById("from");
+                let toSelect = document.getElementById("to");
+                let dfFrom = document.createDocumentFragment();
+                removeAll(fromSelect, toSelect, dfFrom);
+                for(let i = 0; i < values.length; i++){
+                    let option = document.createElement('option')
+                    option.value = values[i];
+                    option.appendChild(document.createTextNode(values[i]));
+                    dfFrom.appendChild(option);
+                }
+                fromSelect.appendChild(dfFrom);
+                let dfTo = document.createDocumentFragment();
+                removeAll(dfTo);
+                for(let i = 0; i < values.length; i++){
+                    let option = document.createElement('option')
+                    option.value = values[i];
+                    option.appendChild(document.createTextNode(values[i]));
+                    dfTo.appendChild(option);
+                }
+                toSelect.appendChild(dfTo);
+            }));
     }
     else {
         fetch('http://localhost:8080/currencies', {method: 'GET'}).then(r => r.json().then(
@@ -66,6 +70,7 @@ function Check(){
                 let fromSelect = document.getElementById("from");
                 let toSelect = document.getElementById("to");
                 let dfFrom = document.createDocumentFragment();
+                removeAll(fromSelect, toSelect, dfFrom);
                 for (let i = 0; i < r.length; i++) {
                     let option = document.createElement('option')
                     option.value = r[i];
@@ -74,6 +79,7 @@ function Check(){
                 }
                 fromSelect.appendChild(dfFrom);
                 let dfTo = document.createDocumentFragment();
+                removeAll(dfTo);
                 for (let i = 0; i < r.length; i++) {
                     let option = document.createElement('option')
                     option.value = r[i];
@@ -84,6 +90,21 @@ function Check(){
             }
         ));
     }
+}
+
+function Check(){
+    let checked = false;
+    try {
+        checked = document.getElementById("toggle").checked;
+    } catch (e) {
+
+    }
+    chooseFetching(checked);
+    return checked;
+
+}
+(function loadSymbols(checked){
+    chooseFetching(checked)
 
 }())
 
